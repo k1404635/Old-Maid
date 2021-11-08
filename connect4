@@ -1,0 +1,199 @@
+from tkinter import *
+from tkinter import messagebox
+from PIL import ImageTk, Image
+ 
+root = Tk()
+root.title('Connect 4')
+c = Canvas(root)
+root.geometry('846x669')
+root.resizable(0,0)
+c.pack(fill=BOTH, expand=True)
+ 
+b1 = Button(root, text=" ", font=("Helvetica", 20), height = 1, width = 6, bg="SystemButtonFace", command=lambda: b_click1())
+b2 = Button(root, text=" ", font=("Helvetica", 20), height = 1, width = 6, bg="SystemButtonFace", command=lambda: b_click2())
+b3 = Button(root, text=" ", font=("Helvetica", 20), height = 1, width = 6, bg="SystemButtonFace", command=lambda: b_click3())
+b4 = Button(root, text=" ", font=("Helvetica", 20), height = 1, width = 6, bg="SystemButtonFace", command=lambda: b_click4())
+b5 = Button(root, text=" ", font=("Helvetica", 20), height = 1, width = 6, bg="SystemButtonFace", command=lambda: b_click5())
+b6 = Button(root, text=" ", font=("Helvetica", 20), height = 1, width = 6, bg="SystemButtonFace", command=lambda: b_click6())
+b7 = Button(root, text=" ", font=("Helvetica", 20), height = 1, width = 6, bg="SystemButtonFace", command=lambda: b_click7())
+ 
+b1.place(x=10,y=0)
+b2.place(x=130,y=0)
+b3.place(x=250, y=0)
+b4.place(x=370, y=0)
+b5.place(x=490, y=0)
+b6.place(x=610, y=0)
+b7.place(x=730, y=0)
+ 
+board = Image.open("board.png", mode='r')
+board = board.resize((846, 559))
+board = ImageTk.PhotoImage(board)
+c.create_image(0, 60, image=board, anchor='nw')
+b1.place(x = 10, y = 0)
+b2.place(x = 130, y = 0)
+#X starts so true
+turn = "red"
+lab = Label(text="Red Player's Turn", fg="Black", font=("Helvetica", 20))
+lab.place(x=310, y=625)
+a1 = []
+a2 = []
+a3 = []
+a4 = []
+a5 = []
+a6 = []
+a7 = []
+ 
+def disable_all_buttons():
+    b1.config(state=DISABLED)
+    b2.config(state=DISABLED)
+    b3.config(state=DISABLED)
+    b4.config(state=DISABLED)
+    b5.config(state=DISABLED)
+    b6.config(state=DISABLED)
+    b7.config(state=DISABLED)
+ 
+#button clicked function
+def changeturn():
+    global turn
+    global lab
+    if turn == "red":
+        turn = "yellow"
+        lab.destroy()
+        lab = Label(text="Yellow Player's Turn", fg="Black", font=("Helvetica", 20))
+        lab.place(x=306, y=625)
+    else:
+        turn = "red"
+        lab.destroy()
+        lab = Label(text="Red Player's Turn", fg="Black", font=("Helvetica", 20))
+        lab.place(x=310, y=625)
+ 
+def b_click1():
+    if len(a1) != 6:
+        a1.append(turn)
+        changeturn()
+    paint()
+    checkifwon()
+def b_click2():
+    if len(a2) != 6:
+        a2.append(turn)
+        changeturn()
+    paint()
+    checkifwon()
+def b_click3():
+    if len(a3) != 6:
+        a3.append(turn)
+        changeturn()
+    paint()
+    checkifwon()
+def b_click4():
+    if len(a4) != 6:
+        a4.append(turn)
+        changeturn()
+    paint()
+    checkifwon()
+def b_click5():
+    if len(a5) != 6:
+        a5.append(turn)
+        changeturn()
+    paint()
+    checkifwon()
+def b_click6():
+    if len(a6) != 6:
+        a6.append(turn)
+        changeturn()
+    paint()
+    checkifwon()
+def b_click7():
+    if len(a7) != 6:
+        a7.append(turn)
+        changeturn()
+    paint()
+    checkifwon()
+global count 
+count = 1
+def paint():
+    global count
+    for i in a1:
+        c.create_oval(17, 626 - (count*92), 110, 696 - (count*92), fill = i)
+        count += 1
+    count = 1
+    for i in a2:
+        c.create_oval(137, 626 - (count*92), 230, 696 - (count*92), fill = i)
+        count += 1
+    count = 1
+    for i in a3:
+        c.create_oval(257, 626 - (count*92), 350, 696 - (count*92), fill = i)
+        count += 1
+    count = 1
+    for i in a4:
+        c.create_oval(377, 626 - (count*92), 470, 696 - (count*92), fill = i)
+        count += 1
+    count = 1
+    for i in a5:
+        c.create_oval(497, 626 - (count*92), 590, 696 - (count*92), fill = i)
+        count += 1
+    count = 1
+    for i in a6:
+        c.create_oval(617, 626 - (count*92), 710, 696 - (count*92), fill = i)
+        count += 1
+    count = 1
+    for i in a7:
+        c.create_oval(737, 626 - (count*92), 830, 696 - (count*92), fill = i)
+        count += 1
+    count = 1
+ 
+def checkifwon():
+    global winner
+    winner = False
+    maina = []
+    maina.append(a1)
+    maina.append(a2)
+    maina.append(a3)
+    maina.append(a4)
+    maina.append(a5)
+    maina.append(a6)
+    maina.append(a7)
+    for a in maina:
+        if winner == True:
+            break
+        for i in range(3):
+            if (i+3<len(a)):
+                if (a[i] == a[i+1] == a[i+2] == a[i+3]):
+                    winner =  True
+                    messagebox.showinfo("Connect 4", "Congratulations! "+a[i]+" Wins!")
+                    disable_all_buttons()
+                    break
+    for i in range(4):
+        if winner == True:
+            break
+        for f in range(len(maina[i])):
+            if (f< len(maina[i+1]) and f< len(maina[i+2]) and f< len(maina[i+3])):
+                if (maina[i][f] == maina[i+1][f] == maina[i+2][f] == maina[i+3][f]):
+                    winner = True
+                    messagebox.showinfo("Connect 4", "Congratulations! "+maina[i][f]+" Wins!")
+                    disable_all_buttons()
+                    break
+    for i in range(4):
+        if winner == True:
+            break
+        for f in range(len(maina[i])):
+            if (f+1< len(maina[i+1]) and f+2< len(maina[i+2]) and f+3< len(maina[i+3])):
+                print(i)
+                print(f)
+                if (maina[i][f] == maina[i+1][f+1] == maina[i+2][f+2] == maina[i+3][f+3]):
+                    winner = True
+                    messagebox.showinfo("Connect 4", "Congratulations! "+maina[i][f]+" Wins!")
+                    disable_all_buttons()
+                    break
+        if winner == True:
+            break
+        for f in range(3, len(maina[i])):
+            if (f-1< len(maina[i+1]) and f-2< len(maina[i+2]) and f-3< len(maina[i+3])):
+                if (maina[i][f] == maina[i+1][f-1] == maina[i+2][f-2] == maina[i+3][f-3]):
+                    winner = True
+                    messagebox.showinfo("Connect 4", "Congratulations! "+maina[i][f]+" Wins!")
+                    disable_all_buttons()
+                    break
+                
+#Create Options Menu
+root.mainloop()
