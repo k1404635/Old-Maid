@@ -1,0 +1,46 @@
+from tkinter import *
+from PIL import ImageTk, Image
+import flask
+from flask.wrappers import Response
+import requests
+from io import BytesIO
+
+app = flask.Flask(__name__)
+
+global deck_id, c, root
+
+root = Tk()
+root.title('Old Maid')
+c = Canvas(root)
+root.geometry('846x669')
+c.pack(fill=BOTH, expand=True)
+
+
+def new_deck():
+  global deck_id, c, root
+
+  response = requests.get("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1")
+  print(response.json()['deck_id'])
+  deck_id = response.json()['deck_id']
+
+  return deck_id
+def draw():
+  stuff = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/draw/?count=1")
+  result = stuff.json()
+  card = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player1/add/?cards=" + result['cards'][0]['code'])
+  print(result)
+  #img = result['cards'][0]['image']
+  img = requests.get(result['cards'][0]['image'])
+  img_bytes = BytesIO(img.content)
+  image = Image.open(img_bytes)
+  #image.show()
+  c.create_image(0, 0, image=image, anchor='nw')
+
+
+
+
+new_deck()
+draw()
+app.run(host ='https://deckofcardsapi.com/api/deck')
+
+root.mainloop()
