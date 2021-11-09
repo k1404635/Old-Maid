@@ -81,6 +81,7 @@ def draw():
     panel.image = img
     panel.place(x=700,y=650)
     show_others_cards()
+    show_other_info()
     
     return str(result['cards'][0]['code'])
 
@@ -89,15 +90,32 @@ def show_others_cards():
   c.create_rectangle(1275, 325, 1475, 475, fill="black")
   c.create_rectangle(700, 25, 850, 225, fill="black")
 
-def show_other_info():
+def show_other_info(): # make lists of hands global, then add to label to show number of cards
   if p == 1:
-    pass
+    current = Label(text="Player 1: Current player", fg="black", font=("Helvetica", 20))
+    other1 = Label(text="Player 2: ", fg="black", font=("Helvetica", 20))
+    other2 = Label(text="Player 3: ", fg="black", font=("Helvetica", 20))
+    other3 = Label(text="Player 4: ", fg="black", font=("Helvetica", 20))
   elif p == 2:
-    pass
+    other1 = Label(text="Player 1: ", fg="black", font=("Helvetica", 20))
+    current = Label(text="Player 2: Current player", fg="black", font=("Helvetica", 20))
+    other2 = Label(text="Player 3: ", fg="black", font=("Helvetica", 20))
+    other3 = Label(text="Player 4: ", fg="black", font=("Helvetica", 20))
   elif p ==3:
-    pass
+    other1 = Label(text="Player 1: ", fg="black", font=("Helvetica", 20))
+    other2 = Label(text="Player 2: ", fg="black", font=("Helvetica", 20))
+    current = Label(text="Player 3: Current player", fg="black", font=("Helvetica", 20))
+    other3 = Label(text="Player 4: ", fg="black", font=("Helvetica", 20))
   elif p == 4:
-    pass
+    other1 = Label(text="Player 1: ", fg="black", font=("Helvetica", 20))
+    other2 = Label(text="Player 2: ", fg="black", font=("Helvetica", 20))
+    other3 = Label(text="Player 3: ", fg="black", font=("Helvetica", 20))
+    current = Label(text="Player 4: Current player", fg="black", font=("Helvetica", 20))
+
+  current.place(x=650, y=350)
+  other1.place(x=650, y=400)
+  other2.place(x=650, y=450)
+  other3.place(x=650, y=500)
 
 new_deck()
 draw()
