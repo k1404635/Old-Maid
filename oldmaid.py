@@ -13,7 +13,7 @@ c = Canvas(root)
 root.geometry('1500x900')
 c.pack(fill=BOTH, expand=True)
 p = 1
-
+begin = True
 
 def new_deck():
     global deck_id
@@ -25,25 +25,30 @@ def new_deck():
     return deck_id
 
 def pass_cards():
-    a = draw()
-    make_discard(a)
-    for i in range(1, 52):
-        b = draw()
-        if i%4 == 1:
-            make_player1(b)
-        elif i%4==2:
-            make_player2(b)
-        elif i%4 == 3:
-            make_player3(b)
-        elif i%4 == 0:
-            make_player4(b)
+  a = draw()
+  make_discard(a)
+  for i in range(1, 52):
+      b = draw()
+      if i%4 == 1:
+          make_player1(b)
+      elif i%4==2:
+          make_player2(b)
+      elif i%4 == 3:
+          make_player3(b)
+      elif i%4 == 0:
+          make_player4(b)
+  board()
     
         
 
 def make_player1(code):
-    info = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player1/add/?cards="+code) #replace ?cards=AS,2S with actual cards
-    # we need to make this into something? to get the list of cards they have "https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player1/list/"
-
+  info = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player1/add/?cards="+code)
+  result = requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player1/list/")
+  result = result.json()
+  result = result['piles']['player1']['cards']
+  hand1 = []
+  for x in result:
+    hand1.append(x['code'])
 
 def make_player2(code):
     info = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player2/add/?cards="+code) #replace ?cards=AS,2S with actual cards
@@ -60,35 +65,54 @@ def make_player4(code):
     # we need to make this into something? to get the list of cards they have "https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player4/list/"
 
 
-def make_discard(code):
-    dis = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/discard/add/?cards="+code) #replace ?cards=AS,2S with actual cards
+def make_discard(a):
+    dis = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/discard/add/?cards="+a) #replace ?cards=AS,2S with actual cards
     # we need to make this into something? to get the list of cards they have "https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/discard/list/"
-
+    
 def use_card():
   pass
 
-def draw():
-    stuff = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/draw/?count=1")
-    result = stuff.json()
-    
-    
-    imgr = requests.get(result['cards'][0]['image'])
+def board():
+  hand = []
+  if p == 1:
+    res = requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player1/list/")
+    res = res.json()
+    res = res['piles']['player1']['cards']
+    for x in res:
+      hand.append(x['image'])
+  elif p == 2:
+    pass
+  elif p == 3:
+    pass
+  elif p == 4:
+    pass
+
+  xvalue = 75
+  yvalue = 650
+  for jjj in hand:
+    imgr = requests.get(jjj)
     img_bytes = BytesIO(imgr.content)
     img = Image.open(img_bytes)
     img = img.resize((150, 200), Image.ANTIALIAS)
     img = ImageTk.PhotoImage(img)
     panel = Button(root, image = img, command=lambda: use_card())
     panel.image = img
-    panel.place(x=700,y=650)
-    show_others_cards()
-    show_other_info()
-    
-    return str(result['cards'][0]['code'])
+    panel.place(x=xvalue,y=yvalue)
+    xvalue += 100
+
+  show_others_cards()
+
+def draw():
+  stuff = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/draw/?count=1")
+  result = stuff.json()
+  
+  return str(result['cards'][0]['code'])
 
 def show_others_cards():
   c.create_rectangle(25, 325, 225, 475, fill="black")
   c.create_rectangle(1275, 325, 1475, 475, fill="black")
   c.create_rectangle(700, 25, 850, 225, fill="black")
+  show_other_info()
 
 def show_other_info(): # make lists of hands global, then add to label to show number of cards
   if p == 1:
@@ -118,8 +142,8 @@ def show_other_info(): # make lists of hands global, then add to label to show n
   other3.place(x=650, y=500)
 
 new_deck()
-draw()
-#pass_cards()
+#draw()
+pass_cards()
 
 #app.run(host ='https://deckofcardsapi.com/api/deck')
 root.mainloop()
