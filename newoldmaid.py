@@ -19,7 +19,7 @@ cards = []
 def new_deck():
     global deck_id
 
-    response = requests.get("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1") #don't need ?deck_count=1 bc thats what is requested
+    response = requests.get("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1")
     print(response.json()['deck_id'])
     deck_id = response.json()['deck_id']
 
@@ -54,8 +54,7 @@ def get_player1():
     return hand1
 
 def make_player2(code):
-    info = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player2/add/?cards="+code) #replace ?cards=AS,2S with actual cards
-    # we need to make this into something? to get the list of cards they have "https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player2/list/"
+    info = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player2/add/?cards="+code) 
 def get_player2():
     result = requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player2/list/")
     result = result.json()
@@ -66,8 +65,7 @@ def get_player2():
     return hand1
 
 def make_player3(code):
-    info = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player3/add/?cards=" + code) #replace ?cards=AS,2S with actual cards
-    # we need to make this into something? to get the list of cards they have "https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player3/list/"
+    info = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player3/add/?cards=" + code) 
 def get_player3():
     result = requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player3/list/")
     result = result.json()
@@ -78,8 +76,7 @@ def get_player3():
     return hand1
 
 def make_player4(code):
-    info = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player4/add/?cards=" +code) #replace ?cards=AS,2S with actual cards
-    # we need to make this into something? to get the list of cards they have "https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player4/list/"
+    info = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player4/add/?cards=" +code)
 def get_player4():
     result = requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player4/list/")
     result = result.json()
@@ -90,8 +87,7 @@ def get_player4():
     return hand1
 
 def make_discard(a):
-    dis = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/discard/add/?cards="+a) #replace ?cards=AS,2S with actual cards
-    # we need to make this into something? to get the list of cards they have "https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/discard/list/"
+    dis = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/discard/add/?cards="+a)
 
 def get_current_hand():
     global p
@@ -123,10 +119,6 @@ def use_card(je):
             print("true")
         cards=[]
         
-        
-
-
-
 def board():
   hand = []
   if p == 1:
@@ -205,10 +197,19 @@ def show_other_info(): # make lists of hands global, then add to label to show n
     other3 = Label(text="Player 3: ", fg="black", font=("Helvetica", 20))
     current = Label(text="Player 4: Current player", fg="black", font=("Helvetica", 20))
 
+  end = Button(root, text="End Turn", font=("Helvetica", 20), height = 3, width = 5, bg="SystemButtonFace", command=lambda: end_turn())
+
   current.place(x=650, y=350)
   other1.place(x=650, y=400)
   other2.place(x=650, y=450)
   other3.place(x=650, y=500)
+
+def end_turn():
+  global p
+  p += 1
+  for widget in root.winfo_children():
+       widget.destroy()
+  board()
 
 new_deck()
 #draw()
