@@ -26,18 +26,23 @@ def new_deck():
     return deck_id
 
 def pass_cards():
+  count = 1
   a = draw()
   make_discard(a)
   for i in range(1, 52):
       b = draw()
-      if i%4 == 1:
+      if count == 1:
           make_player1(b)
-      elif i%4==2:
+          count = 2
+      elif count==2:
           make_player2(b)
-      elif i%4 == 3:
+          count = 3
+      elif count == 3:
           make_player3(b)
-      elif i%4 == 0:
+          count = 4
+      elif count == 0:
           make_player4(b)
+          count = 1
   board()
     
         
@@ -181,23 +186,23 @@ def show_other_info(): # make lists of hands global, then add to label to show n
   global c
   if p == 1:
     current = Label(text="Player 1: Current player", fg="black", font=("Helvetica", 20))
-    other1 = Label(text="Player 2: ", fg="black", font=("Helvetica", 20))
-    other2 = Label(text="Player 3: ", fg="black", font=("Helvetica", 20))
-    other3 = Label(text="Player 4: ", fg="black", font=("Helvetica", 20))
+    other1 = Label(text="Player 2: " + str(len(get_player2())), fg="black", font=("Helvetica", 20))
+    other2 = Label(text="Player 3: " + str(len(get_player3())), fg="black", font=("Helvetica", 20))
+    other3 = Label(text="Player 4: " + str(len(get_player4())), fg="black", font=("Helvetica", 20))
   elif p == 2:
-    other1 = Label(text="Player 1: ", fg="black", font=("Helvetica", 20))
+    other1 = Label(text="Player 1: " + str(len(get_player1())), fg="black", font=("Helvetica", 20))
     current = Label(text="Player 2: Current player", fg="black", font=("Helvetica", 20))
-    other2 = Label(text="Player 3: ", fg="black", font=("Helvetica", 20))
-    other3 = Label(text="Player 4: ", fg="black", font=("Helvetica", 20))
+    other2 = Label(text="Player 3: " + str(len(get_player3())), fg="black", font=("Helvetica", 20))
+    other3 = Label(text="Player 4: " + str(len(get_player4())), fg="black", font=("Helvetica", 20))
   elif p ==3:
-    other1 = Label(text="Player 1: ", fg="black", font=("Helvetica", 20))
-    other2 = Label(text="Player 2: ", fg="black", font=("Helvetica", 20))
+    other1 = Label(text="Player 1: " + str(len(get_player1())), fg="black", font=("Helvetica", 20))
+    other2 = Label(text="Player 2: " + str(len(get_player2())), fg="black", font=("Helvetica", 20))
     current = Label(text="Player 3: Current player", fg="black", font=("Helvetica", 20))
-    other3 = Label(text="Player 4: ", fg="black", font=("Helvetica", 20))
+    other3 = Label(text="Player 4: " + str(len(get_player4())), fg="black", font=("Helvetica", 20))
   elif p == 4:
-    other1 = Label(text="Player 1: ", fg="black", font=("Helvetica", 20))
-    other2 = Label(text="Player 2: ", fg="black", font=("Helvetica", 20))
-    other3 = Label(text="Player 3: ", fg="black", font=("Helvetica", 20))
+    other1 = Label(text="Player 1: " + str(len(get_player1())), fg="black", font=("Helvetica", 20))
+    other2 = Label(text="Player 2: " + str(len(get_player2())), fg="black", font=("Helvetica", 20))
+    other3 = Label(text="Player 3: " + str(len(get_player3())), fg="black", font=("Helvetica", 20))
     current = Label(text="Player 4: Current player", fg="black", font=("Helvetica", 20))
 
   end = Button(root, text="End Turn", font=("Helvetica", 20), height = 1, width = 7, bg="SystemButtonFace", command=lambda: end_turn())
@@ -211,10 +216,7 @@ def show_other_info(): # make lists of hands global, then add to label to show n
 def end_turn():
   global p, c
   p += 1
-  for widget in root.winfo_children():
-       widget.destroy()
-
-  root.title("Old Maid")
+  c.delete('all')
   board()
   
 
