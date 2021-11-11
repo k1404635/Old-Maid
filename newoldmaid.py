@@ -40,7 +40,7 @@ def pass_cards():
       elif count == 3:
           make_player3(b)
           count = 4
-      elif count == 0:
+      elif count == 4:
           make_player4(b)
           count = 1
   board()
