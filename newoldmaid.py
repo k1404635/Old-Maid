@@ -120,6 +120,7 @@ def use_card(je):
         cards=[]
         
 def board():
+  global c
   hand = []
   if p == 1:
     res = requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player1/list/")
@@ -170,12 +171,14 @@ def draw():
   return str(result['cards'][0]['code'])
 
 def show_others_cards():
+  global c
   c.create_rectangle(25, 325, 225, 475, fill="black")
   c.create_rectangle(1275, 325, 1475, 475, fill="black")
   c.create_rectangle(700, 25, 850, 225, fill="black")
   show_other_info()
 
 def show_other_info(): # make lists of hands global, then add to label to show number of cards
+  global c
   if p == 1:
     current = Label(text="Player 1: Current player", fg="black", font=("Helvetica", 20))
     other1 = Label(text="Player 2: ", fg="black", font=("Helvetica", 20))
@@ -197,19 +200,23 @@ def show_other_info(): # make lists of hands global, then add to label to show n
     other3 = Label(text="Player 3: ", fg="black", font=("Helvetica", 20))
     current = Label(text="Player 4: Current player", fg="black", font=("Helvetica", 20))
 
-  end = Button(root, text="End Turn", font=("Helvetica", 20), height = 3, width = 5, bg="SystemButtonFace", command=lambda: end_turn())
+  end = Button(root, text="End Turn", font=("Helvetica", 20), height = 1, width = 7, bg="SystemButtonFace", command=lambda: end_turn())
 
+  end.place(x=700, y=575)
   current.place(x=650, y=350)
   other1.place(x=650, y=400)
   other2.place(x=650, y=450)
   other3.place(x=650, y=500)
 
 def end_turn():
-  global p
+  global p, c
   p += 1
   for widget in root.winfo_children():
        widget.destroy()
+
+  root.title("Old Maid")
   board()
+  
 
 new_deck()
 #draw()
