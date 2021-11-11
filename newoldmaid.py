@@ -6,14 +6,15 @@ import requests
 from io import BytesIO
 
 app = flask.Flask(__name__)
-
+global deck_id, c, p, cards
 root = Tk()
 root.title('Old Maid')
 c = Canvas(root)
-root.geometry('846x669')
-#c.pack(fill=BOTH, expand=True)
-    
-global deck_id
+root.geometry('1500x900')
+c.pack(fill=BOTH, expand=True)
+p = 1
+begin = True
+cards = []
 
 def new_deck():
     global deck_id
@@ -25,77 +26,192 @@ def new_deck():
     return deck_id
 
 def pass_cards():
-    a = draw()
-    make_discard(a)
-    for i in range(1, 52):
-        b = draw()
-        if i%4 == 1:
-            make_player1(b)
-        elif i%4==2:
-            make_player2(b)
-        elif i%4 == 3:
-            make_player3(b)
-        elif i%4 == 0:
-            make_player4(b)
+  a = draw()
+  make_discard(a)
+  for i in range(1, 52):
+      b = draw()
+      if i%4 == 1:
+          make_player1(b)
+      elif i%4==2:
+          make_player2(b)
+      elif i%4 == 3:
+          make_player3(b)
+      elif i%4 == 0:
+          make_player4(b)
+  board()
     
         
 
 def make_player1(code):
-    info = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player1/add/?cards="+code) #replace ?cards=AS,2S with actual cards
-    # we need to make this into something? to get the list of cards they have "https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player1/list/"
-
+    info = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player1/add/?cards="+code)
+def get_player1():
+    result = requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player1/list/")
+    result = result.json()
+    result = result['piles']['player1']['cards']
+    hand1 = []
+    for x in result:
+        hand1.append(x['code'])
+    return hand1
 
 def make_player2(code):
     info = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player2/add/?cards="+code) #replace ?cards=AS,2S with actual cards
     # we need to make this into something? to get the list of cards they have "https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player2/list/"
-
+def get_player2():
+    result = requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player2/list/")
+    result = result.json()
+    result = result['piles']['player2']['cards']
+    hand1 = []
+    for x in result:
+        hand1.append(x['code'])
+    return hand1
 
 def make_player3(code):
     info = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player3/add/?cards=" + code) #replace ?cards=AS,2S with actual cards
     # we need to make this into something? to get the list of cards they have "https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player3/list/"
-
+def get_player3():
+    result = requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player3/list/")
+    result = result.json()
+    result = result['piles']['player3']['cards']
+    hand1 = []
+    for x in result:
+        hand1.append(x['code'])
+    return hand1
 
 def make_player4(code):
     info = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player4/add/?cards=" +code) #replace ?cards=AS,2S with actual cards
     # we need to make this into something? to get the list of cards they have "https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player4/list/"
+def get_player4():
+    result = requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player4/list/")
+    result = result.json()
+    result = result['piles']['player4']['cards']
+    hand1 = []
+    for x in result:
+        hand1.append(x['code'])
+    return hand1
 
-
-def make_discard(code):
-    dis = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/discard/add/?cards="+code) #replace ?cards=AS,2S with actual cards
+def make_discard(a):
+    dis = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/discard/add/?cards="+a) #replace ?cards=AS,2S with actual cards
     # we need to make this into something? to get the list of cards they have "https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/discard/list/"
 
-def board(cards):
-    card1 = cards[0]
-    card1a = card1[0:1]
-    card2 = cards[1]
-    card2a = card2[0:1]
-    if card1a == card2a:
-        pass #add to discard pile and remove from the player's hand
+def get_current_hand():
+    global p
+    if p == 1:
+        return get_player1()
+    elif p == 2:
+        return get_player2()
+    elif p == 3:
+        return get_player3()
+    elif p == 4:
+        return get_player4()
+    
+def use_card(je):
+    global cards
+    chand = get_current_hand()
+    cards.append(chand[je])
+    print(je)
+    
+    if len(cards) == 1:
+        select = Label(text="Select Another Card", fg="black", font=("Helvetica", 20))
+        select.place(x=650, y=550)
+    elif len(cards) == 2:
+        card1 = str(cards[0])
+        card1a = card1[0:1]
+        card2 = cards[1]
+        card2a = card2[0:1]
+        print(card1a, card2a)
+        if card1a == card2a:
+            print("true")
+        cards=[]
+        
+        
 
-def random():
-    pass
 
 
-def draw():
-    stuff = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/draw/?count=1")
-    result = stuff.json()
-    print(result['cards'][0]['code'])
-    imgr = requests.get(result['cards'][0]['image'])
+def board():
+  hand = []
+  if p == 1:
+    res = requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player1/list/")
+    res = res.json()
+    res = res['piles']['player1']['cards']
+    for x in res:
+      hand.append(x['image'])
+  elif p == 2:
+    res = requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player2/list/")
+    res = res.json()
+    res = res['piles']['player2']['cards']
+    for x in res:
+      hand.append(x['image'])
+  elif p == 3:
+    res = requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player3/list/")
+    res = res.json()
+    res = res['piles']['player3']['cards']
+    for x in res:
+      hand.append(x['image'])
+  elif p == 4:
+    res = requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player4/list/")
+    res = res.json()
+    res = res['piles']['player4']['cards']
+    for x in res:
+      hand.append(x['image'])
+
+  xvalue = 75
+  yvalue = 650
+  ia = 0
+  for jjj in hand:
+    imgr = requests.get(jjj)
     img_bytes = BytesIO(imgr.content)
     img = Image.open(img_bytes)
     img = img.resize((150, 200), Image.ANTIALIAS)
     img = ImageTk.PhotoImage(img)
-    panel = Label(root, image = img)
+    panel = Button(root, image = img, command=lambda d = ia: use_card(d))
     panel.image = img
-    panel.grid(row = 2)
+    panel.place(x=xvalue,y=yvalue)
+    xvalue += 100
+    ia+=1
 
-    
-    return str(result['cards'][0]['code'])
+  show_others_cards()
 
+def draw():
+  stuff = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/draw/?count=1")
+  result = stuff.json()
+  
+  return str(result['cards'][0]['code'])
+
+def show_others_cards():
+  c.create_rectangle(25, 325, 225, 475, fill="black")
+  c.create_rectangle(1275, 325, 1475, 475, fill="black")
+  c.create_rectangle(700, 25, 850, 225, fill="black")
+  show_other_info()
+
+def show_other_info(): # make lists of hands global, then add to label to show number of cards
+  if p == 1:
+    current = Label(text="Player 1: Current player", fg="black", font=("Helvetica", 20))
+    other1 = Label(text="Player 2: ", fg="black", font=("Helvetica", 20))
+    other2 = Label(text="Player 3: ", fg="black", font=("Helvetica", 20))
+    other3 = Label(text="Player 4: ", fg="black", font=("Helvetica", 20))
+  elif p == 2:
+    other1 = Label(text="Player 1: ", fg="black", font=("Helvetica", 20))
+    current = Label(text="Player 2: Current player", fg="black", font=("Helvetica", 20))
+    other2 = Label(text="Player 3: ", fg="black", font=("Helvetica", 20))
+    other3 = Label(text="Player 4: ", fg="black", font=("Helvetica", 20))
+  elif p ==3:
+    other1 = Label(text="Player 1: ", fg="black", font=("Helvetica", 20))
+    other2 = Label(text="Player 2: ", fg="black", font=("Helvetica", 20))
+    current = Label(text="Player 3: Current player", fg="black", font=("Helvetica", 20))
+    other3 = Label(text="Player 4: ", fg="black", font=("Helvetica", 20))
+  elif p == 4:
+    other1 = Label(text="Player 1: ", fg="black", font=("Helvetica", 20))
+    other2 = Label(text="Player 2: ", fg="black", font=("Helvetica", 20))
+    other3 = Label(text="Player 3: ", fg="black", font=("Helvetica", 20))
+    current = Label(text="Player 4: Current player", fg="black", font=("Helvetica", 20))
+
+  current.place(x=650, y=350)
+  other1.place(x=650, y=400)
+  other2.place(x=650, y=450)
+  other3.place(x=650, y=500)
 
 new_deck()
-draw()
-#pass_cards()
+#draw()
+pass_cards()
 
-#app.run(host ='https://deckofcardsapi.com/api/deck')
 root.mainloop()
