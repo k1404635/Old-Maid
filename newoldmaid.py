@@ -110,10 +110,15 @@ def use_card(je):
     chand = get_current_hand()
     cards.append(chand[je])
     print(je)
-    
+    select = Label(text="Select Another Card", fg="black", font=("Helvetica", 20))
+    done = Label(text="You have a Pair!", fg="black", font=("Helvetica", 20))
+    nopair = Label(text="Not a pair. Try Again", fg="black", font=("Helvetica", 20))
     if len(cards) == 1:
-        select = Label(text="Select Another Card", fg="black", font=("Helvetica", 20))
+        #select = Label(text="Select Another Card", fg="black", font=("Helvetica", 20))
+        done.destroy()
+        nopair.destroy()
         select.place(x=650, y=550)
+
     elif len(cards) == 2:
         card1 = str(cards[0])
         card1a = card1[0:1]
@@ -122,6 +127,13 @@ def use_card(je):
         print(card1a, card2a)
         if card1a == card2a:
             print("true")
+            select.destroy()
+            nopair.destroy()
+            done.place(x=650, y=550)
+        else:
+          select.destroy()
+          done.destroy()
+          nopair.place(x=650, y=550)
         cards=[]
         
 def board():
