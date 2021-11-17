@@ -189,14 +189,11 @@ def draw():
   return str(result['cards'][0]['code'])
 
 def show_others_cards():
-  '''c.create_rectangle(25, 325, 225, 475, fill="black")
-  c.create_rectangle(1275, 325, 1475, 475, fill="black")
-  c.create_rectangle(700, 25, 850, 225, fill="black")'''
-  back = Image.open("backside.png", mode='r')
+  global ba
+  back = Image.open("backside.jpg", mode='r')
   back = ImageTk.PhotoImage(back)
-  c.create_image(1275, 325, 1475, 475, image=back, anchor='nw')
-  c.create_image(25, 325, 225, 475, image=back, anchor='nw')
-  c.create_image(700, 25, 850, 225, image=back, anchor='nw')
+  ba = Button(root, image=back, command=lambda: disable())
+  ba.place(x=25,y=325)
 
   if p == 1:
     current = Label(text="Player 1: Current player", fg="black", font=("Helvetica", 20))
@@ -226,6 +223,9 @@ def show_others_cards():
   other1.place(x=650, y=350)
   other2.place(x=650, y=400)
   other3.place(x=650, y=450)
+
+def disable():
+  ba.config(state=DISABLED)
 
 def end_turn():
   global p
