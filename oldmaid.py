@@ -15,6 +15,12 @@ c.pack(fill=BOTH, expand=True)
 p = 1
 begin = True
 cards = []
+global ba
+back = Image.open("backside.png", mode='r')
+back = back.resize((200, 150))
+back = ImageTk.PhotoImage(back)
+ba = Button(root, image=back, command=lambda: disable())
+ba.place(x=25,y=325)
 
 def new_deck():
     global deck_id
@@ -189,12 +195,6 @@ def draw():
   return str(result['cards'][0]['code'])
 
 def show_others_cards():
-  global ba
-  back = Image.open("backside.jpg", mode='r')
-  back = ImageTk.PhotoImage(back)
-  ba = Button(root, image=back, command=lambda: disable())
-  ba.place(x=25,y=325)
-
   if p == 1:
     current = Label(text="Player 1: Current player", fg="black", font=("Helvetica", 20))
     other1 = Label(text="Player 2: " + str(len(get_player2())), fg="black", font=("Helvetica", 20))
