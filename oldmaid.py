@@ -192,7 +192,11 @@ def show_others_cards():
   '''c.create_rectangle(25, 325, 225, 475, fill="black")
   c.create_rectangle(1275, 325, 1475, 475, fill="black")
   c.create_rectangle(700, 25, 850, 225, fill="black")'''
-  img = Image.open("backside.png", mode='r')
+  back = Image.open("backside.png", mode='r')
+  back = ImageTk.PhotoImage(back)
+  c.create_image(1275, 325, 1475, 475, image=back, anchor='nw')
+  c.create_image(25, 325, 225, 475, image=back, anchor='nw')
+  c.create_image(700, 25, 850, 225, image=back, anchor='nw')
 
   if p == 1:
     current = Label(text="Player 1: Current player", fg="black", font=("Helvetica", 20))
