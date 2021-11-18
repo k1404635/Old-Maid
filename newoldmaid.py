@@ -1,4 +1,5 @@
 from tkinter import *
+from typing import Sized
 from PIL import ImageTk, Image
 import flask
 from flask.wrappers import Response
@@ -6,7 +7,7 @@ import requests
 from io import BytesIO
 
 app = flask.Flask(__name__)
-global deck_id, c, p, cards
+global deck_id, c, p, cards, lab
 root = Tk()
 root.title('Old Maid')
 c = Canvas(root)
@@ -15,6 +16,22 @@ c.pack(fill=BOTH, expand=True)
 p = 1
 begin = True
 cards = []
+lab = Label(text="", fg="black", font=("Helvetica", 20))
+lab.place(x=650, y=500)
+global back, side
+side = Image.open("sideways.png", mode='r')
+side = side.resize((225, 175))
+side = ImageTk.PhotoImage(side)
+back = Image.open("backside.png", mode='r')
+back = back.resize((175, 225))
+back = ImageTk.PhotoImage(back)
+ba = Button(root, image=back, command=lambda: nothing())
+s1 = Button(root, image=side, command=lambda: nothing())
+s2 = Button(root, image=side, command=lambda: nothing())
+
+s1.place(x=25,y=325)
+ba.place(x=700, y=25)
+s2.place(x=1240, y=325)
 
 def new_deck():
     global deck_id
@@ -43,9 +60,8 @@ def pass_cards():
       elif count == 4:
           make_player4(b)
           count = 1
-  board()
-    
-        
+  
+  board()        
 
 def make_player1(code):
     info = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player1/add/?cards="+code)
@@ -106,19 +122,14 @@ def get_current_hand():
         return get_player4()
     
 def use_card(je):
-    global cards
+    global cards, lab
     chand = get_current_hand()
     cards.append(chand[je])
     print(je)
-    select = Label(text="Select Another Card", fg="black", font=("Helvetica", 20))
-    done = Label(text="You have a Pair!", fg="black", font=("Helvetica", 20))
-    nopair = Label(text="Not a pair. Try Again", fg="black", font=("Helvetica", 20))
     if len(cards) == 1:
-        #select = Label(text="Select Another Card", fg="black", font=("Helvetica", 20))
-        done.destroy()
-        nopair.destroy()
-        select.place(x=650, y=550)
-
+        lab.destroy()
+        lab = Label(text="Select Another Card", fg="black", font=("Helvetica", 20))
+        lab.place(x=650, y=500)
     elif len(cards) == 2:
         card1 = str(cards[0])
         card1a = card1[0:1]
@@ -127,17 +138,36 @@ def use_card(je):
         print(card1a, card2a)
         if card1a == card2a:
             print("true")
-            select.destroy()
-            nopair.destroy()
-            done.place(x=650, y=550)
+            lab.destroy()
+            lab = Label(text="You have a pair!", fg="black", font=("Helvetica", 20))
+            lab.place(x=650, y=500)
+            matched(card1,card2)
         else:
-          select.destroy()
-          done.destroy()
-          nopair.place(x=650, y=550)
+          lab.destroy()
+          lab = Label(text="Not a pair. Try again", fg="black", font=("Helvetica", 20))
+          lab.place(x=650, y=500)
         cards=[]
         
+def matched(card1, card2):
+    global p
+    if p == 1:
+        ha = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player1/draw/?cards=" + str(card1))
+        ha2 = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player1/draw/?cards=" + str(card2))
+    elif p == 2:
+        
+        ha = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player2/draw/?cards=" + str(card1))
+        ha2 = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player2/draw/?cards=" + str(card2))
+    elif p == 3:
+        
+        ha = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player3/draw/?cards=" + str(card1))
+        ha2 = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player3/draw/?cards=" + str(card2))
+    elif p == 4:
+       
+        ha = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player4/draw/?cards=" + str(card1))
+        ha2 = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player4/draw/?cards=" + str(card2))
+    
+
 def board():
-  global c
   hand = []
   if p == 1:
     res = requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player1/list/")
@@ -188,14 +218,14 @@ def draw():
   return str(result['cards'][0]['code'])
 
 def show_others_cards():
-  global c
-  c.create_rectangle(25, 325, 225, 475, fill="black")
-  c.create_rectangle(1275, 325, 1475, 475, fill="black")
-  c.create_rectangle(700, 25, 850, 225, fill="black")
-  show_other_info()
+  ba = Button(root, image=back, command=lambda: nothing())
+  s1 = Button(root, image=side, command=lambda: nothing())
+  s2 = Button(root, image=side, command=lambda: nothing())
 
-def show_other_info(): # make lists of hands global, then add to label to show number of cards
-  global c
+  s1.place(x=25,y=325)
+  ba.place(x=700, y=25)
+  s2.place(x=1240, y=325)
+
   if p == 1:
     current = Label(text="Player 1: Current player", fg="black", font=("Helvetica", 20))
     other1 = Label(text="Player 2: " + str(len(get_player2())), fg="black", font=("Helvetica", 20))
@@ -206,7 +236,7 @@ def show_other_info(): # make lists of hands global, then add to label to show n
     current = Label(text="Player 2: Current player", fg="black", font=("Helvetica", 20))
     other2 = Label(text="Player 3: " + str(len(get_player3())), fg="black", font=("Helvetica", 20))
     other3 = Label(text="Player 4: " + str(len(get_player4())), fg="black", font=("Helvetica", 20))
-  elif p ==3:
+  elif p == 3:
     other1 = Label(text="Player 1: " + str(len(get_player1())), fg="black", font=("Helvetica", 20))
     other2 = Label(text="Player 2: " + str(len(get_player2())), fg="black", font=("Helvetica", 20))
     current = Label(text="Player 3: Current player", fg="black", font=("Helvetica", 20))
@@ -219,18 +249,31 @@ def show_other_info(): # make lists of hands global, then add to label to show n
 
   end = Button(root, text="End Turn", font=("Helvetica", 20), height = 1, width = 7, bg="SystemButtonFace", command=lambda: end_turn())
 
-  end.place(x=700, y=575)
-  current.place(x=650, y=350)
-  other1.place(x=650, y=400)
-  other2.place(x=650, y=450)
-  other3.place(x=650, y=500)
+  end.place(x=700, y=550)
+  current.place(x=650, y=300)
+  other1.place(x=650, y=350)
+  other2.place(x=650, y=400)
+  other3.place(x=650, y=450)
+
+def nothing(): #literally does nothing
+  pass
 
 def end_turn():
-  global p, c
-  p += 1
-  c.delete('all')
+  global p
+  if p < 4:
+    p += 1
+  else:
+    p = 1
+  for widget in root.winfo_children():
+       widget.destroy()
+  # c.delete('all')
   board()
   
+def change_player():
+  for widget in root.winfo_children():
+       widget.destroy()
+
+  end_turn()
 
 new_deck()
 #draw()
