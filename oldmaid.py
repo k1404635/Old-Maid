@@ -7,7 +7,7 @@ import requests
 from io import BytesIO
 
 app = flask.Flask(__name__)
-global deck_id, c, p, cards
+global deck_id, c, p, cards, lab
 root = Tk()
 root.title('Old Maid')
 c = Canvas(root)
@@ -16,6 +16,8 @@ c.pack(fill=BOTH, expand=True)
 p = 1
 begin = True
 cards = []
+lab = Label(text="", fg="black", font=("Helvetica", 20))
+lab.place(x=650, y=500)
 global back, side
 side = Image.open("sideways.png", mode='r')
 side = side.resize((225, 175))
@@ -120,20 +122,15 @@ def get_current_hand():
         return get_player4()
     
 def use_card(je):
-    global cards
+    global cards, lab
     chand = get_current_hand()
     cards.append(chand[je])
     print(je)
-    select = Label(text="Select Another Card", fg="black", font=("Helvetica", 20))
-    done = Label(text="You have a Pair!", fg="black", font=("Helvetica", 20))
-    nopair = Label(text="Not a pair. Try Again", fg="black", font=("Helvetica", 20))
     if len(cards) == 1:
-        #select = Label(text="Select Another Card", fg="black", font=("Helvetica", 20))
-        done.destroy()
-        nopair.destroy()
-        select.place(x=650, y=500)
+        lab.destroy()
+        lab = Label(text="Select Another Card", fg="black", font=("Helvetica", 20))
+        lab.place(x=650, y=500)
     elif len(cards) == 2:
-        select.destroy()
         card1 = str(cards[0])
         card1a = card1[0:1]
         card2 = cards[1]
@@ -141,13 +138,13 @@ def use_card(je):
         print(card1a, card2a)
         if card1a == card2a:
             print("true")
-            select.destroy()
-            nopair.destroy()
-            done.place(x=650, y=500)
+            lab.destroy()
+            lab = Label(text="You have a pair!", fg="black", font=("Helvetica", 20))
+            lab.place(x=650, y=500)
         else:
-          select.destroy()
-          done.destroy()
-          nopair.place(x=650, y=500)
+          lab.destroy()
+          lab = Label(text="Not a pair. Try again", fg="black", font=("Helvetica", 20))
+          lab.place(x=650, y=500)
         cards=[]
         
 def matched(card1, card2):
