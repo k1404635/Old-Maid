@@ -125,7 +125,6 @@ def use_card(je):
     global cards, lab
     chand = get_current_hand()
     cards.append(chand[je])
-    print(je)
     if len(cards) == 1:
         lab.destroy()
         lab = Label(text="Select Another Card", fg="black", font=("Helvetica", 20))
@@ -135,12 +134,11 @@ def use_card(je):
         card1a = card1[0:1]
         card2 = cards[1]
         card2a = card2[0:1]
-        print(card1a, card2a)
         if card1a == card2a:
-            print("true")
             lab.destroy()
             lab = Label(text="You have a pair!", fg="black", font=("Helvetica", 20))
             lab.place(x=650, y=500)
+            matched(card1, card2)
         else:
           lab.destroy()
           lab = Label(text="Not a pair. Try again", fg="black", font=("Helvetica", 20))
@@ -148,9 +146,14 @@ def use_card(je):
         cards=[]
         
 def matched(card1, card2):
-  pass
+  requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player"+str(p)+"/draw/?cards=" + card1 +","+card2)
+  board()
+
 
 def board():
+  for widget in root.winfo_children():
+       widget.destroy()
+
   hand = []
   if p == 1:
     res = requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player1/list/")
