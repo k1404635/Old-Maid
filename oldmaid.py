@@ -1,4 +1,5 @@
 from tkinter import *
+from typing import Sized
 from PIL import ImageTk, Image
 import flask
 from flask.wrappers import Response
@@ -15,12 +16,20 @@ c.pack(fill=BOTH, expand=True)
 p = 1
 begin = True
 cards = []
-global ba
+global back, side
+side = Image.open("sideways.png", mode='r')
+side = side.resize((225, 175))
+side = ImageTk.PhotoImage(side)
 back = Image.open("backside.png", mode='r')
-back = back.resize((200, 150))
+back = back.resize((175, 225))
 back = ImageTk.PhotoImage(back)
-ba = Button(root, image=back, command=lambda: disable())
-ba.place(x=25,y=325)
+ba = Button(root, image=back, command=lambda: nothing())
+s1 = Button(root, image=side, command=lambda: nothing())
+s2 = Button(root, image=side, command=lambda: nothing())
+
+s1.place(x=25,y=325)
+ba.place(x=700, y=25)
+s2.place(x=1240, y=325)
 
 def new_deck():
     global deck_id
@@ -195,6 +204,14 @@ def draw():
   return str(result['cards'][0]['code'])
 
 def show_others_cards():
+  ba = Button(root, image=back, command=lambda: nothing())
+  s1 = Button(root, image=side, command=lambda: nothing())
+  s2 = Button(root, image=side, command=lambda: nothing())
+
+  s1.place(x=25,y=325)
+  ba.place(x=700, y=25)
+  s2.place(x=1240, y=325)
+
   if p == 1:
     current = Label(text="Player 1: Current player", fg="black", font=("Helvetica", 20))
     other1 = Label(text="Player 2: " + str(len(get_player2())), fg="black", font=("Helvetica", 20))
@@ -224,8 +241,8 @@ def show_others_cards():
   other2.place(x=650, y=400)
   other3.place(x=650, y=450)
 
-def disable():
-  ba.config(state=DISABLED)
+def nothing(): #literally does nothing
+  pass
 
 def end_turn():
   global p
