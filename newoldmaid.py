@@ -1,13 +1,15 @@
 from tkinter import *
-from typing import Sized
+from typing import Counter, Sized
 from PIL import ImageTk, Image
 import flask
 from flask.wrappers import Response
 import requests
 from io import BytesIO
+from tkinter import messagebox
 
 app = flask.Flask(__name__)
-global deck_id, c, p, cards, lab
+global deck_id, c, p, cards, lab, eh
+eh = 0
 root = Tk()
 root.title('Old Maid')
 c = Canvas(root)
@@ -37,7 +39,7 @@ def new_deck():
     global deck_id
 
     response = requests.get("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1")
-    print(response.json()['deck_id'])
+    print("Loading...")
     deck_id = response.json()['deck_id']
 
     return deck_id
@@ -61,7 +63,9 @@ def pass_cards():
           make_player4(b)
           count = 1
   
-  board()        
+  board()
+  show_others_cards()  
+  show_stuff()      
 
 def make_player1(code):
     info = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player1/add/?cards="+code)
@@ -125,7 +129,6 @@ def use_card(je):
     global cards, lab
     chand = get_current_hand()
     cards.append(chand[je])
-    print(je)
     if len(cards) == 1:
         lab.destroy()
         lab = Label(text="Select Another Card", fg="black", font=("Helvetica", 20))
@@ -135,13 +138,13 @@ def use_card(je):
         card1a = card1[0:1]
         card2 = cards[1]
         card2a = card2[0:1]
-        print(card1a, card2a)
         if card1a == card2a:
-            print("true")
             lab.destroy()
             lab = Label(text="You have a pair!", fg="black", font=("Helvetica", 20))
             lab.place(x=650, y=500)
-            matched(card1,card2)
+            matched(card1, card2)
+            if len(get_current_hand()) == 0:
+              win()
         else:
           lab.destroy()
           lab = Label(text="Not a pair. Try again", fg="black", font=("Helvetica", 20))
@@ -149,25 +152,19 @@ def use_card(je):
         cards=[]
         
 def matched(card1, card2):
-    global p
-    if p == 1:
-        ha = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player1/draw/?cards=" + str(card1))
-        ha2 = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player1/draw/?cards=" + str(card2))
-    elif p == 2:
-        
-        ha = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player2/draw/?cards=" + str(card1))
-        ha2 = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player2/draw/?cards=" + str(card2))
-    elif p == 3:
-        
-        ha = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player3/draw/?cards=" + str(card1))
-        ha2 = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player3/draw/?cards=" + str(card2))
-    elif p == 4:
-       
-        ha = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player4/draw/?cards=" + str(card1))
-        ha2 = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player4/draw/?cards=" + str(card2))
-    
+  requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player"+str(p)+"/draw/?cards=" + card1 +","+card2)
+  board()
+  show_others_cards()
+  show_stuff()
+
+def win():
+  messagebox.showinfo("Old Maid", "Player "+str(p)+" Wins!")
 
 def board():
+  global counter
+  for widget in root.winfo_children():
+       widget.destroy()
+
   hand = []
   if p == 1:
     res = requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player1/list/")
@@ -209,15 +206,13 @@ def board():
     xvalue += 100
     ia+=1
 
-  show_others_cards()
-
 def draw():
   stuff = requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/draw/?count=1")
   result = stuff.json()
   
   return str(result['cards'][0]['code'])
 
-def show_others_cards():
+def show_stuff():
   ba = Button(root, image=back, command=lambda: nothing())
   s1 = Button(root, image=side, command=lambda: nothing())
   s2 = Button(root, image=side, command=lambda: nothing())
@@ -226,6 +221,8 @@ def show_others_cards():
   ba.place(x=700, y=25)
   s2.place(x=1240, y=325)
 
+
+def show_others_cards():
   if p == 1:
     current = Label(text="Player 1: Current player", fg="black", font=("Helvetica", 20))
     other1 = Label(text="Player 2: " + str(len(get_player2())), fg="black", font=("Helvetica", 20))
@@ -255,20 +252,80 @@ def show_others_cards():
   other2.place(x=650, y=400)
   other3.place(x=650, y=450)
 
+def choose_card():
+  global eh
+  if eh >= 4:
+    for widget in root.winfo_children():
+       widget.destroy()
+  
+    board()
+
+    length = 0
+    if p-1 == 1:
+      length = len(get_player1())
+    elif p-1 == 2:
+      length = len(get_player2())
+    elif p-1 == 3:
+      length = len(get_player3())
+    elif p-1 == 0:
+      length = len(get_player4())
+
+    xvalue = 75
+    yvalue = 50
+    ia = 0
+    for jjj in range(0, length):
+      panel = Button(root, image = back, command=lambda d = ia: chosen(d))
+      panel.image = back
+      panel.place(x=xvalue,y=yvalue)
+      xvalue += 100
+      ia+=1
+    
+    show_others_cards()
+
+def chosen(d):
+  if p == 1:
+    ca = get_player4()[d]
+  elif p == 2:
+    ca = get_player1()[d]
+  elif p == 3:
+    ca = get_player2()[d]
+  else:
+    ca = get_player3()[d]
+
+  if p-1 > 0:
+    requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player"+str(p-1)+"/draw/?cards=" + ca)
+  else: 
+    requests.get("https://deckofcardsapi.com/api/deck/"+deck_id+"/pile/player4/draw/?cards=" + ca)
+
+  requests.get("https://deckofcardsapi.com/api/deck/" + deck_id + "/pile/player"+str(p)+"/add/?cards="+ ca)
+
+  board()
+  show_others_cards()
+  show_stuff()
+
 def nothing(): #literally does nothing
   pass
 
 def end_turn():
-  global p
+  global p, eh
+  eh += 1
   if p < 4:
     p += 1
   else:
     p = 1
+
   for widget in root.winfo_children():
-       widget.destroy()
-  # c.delete('all')
+      widget.destroy()
   board()
-  
+  show_others_cards()
+  show_stuff()
+
+  if eh == 4: 
+    p += 1
+    choose_card()
+  elif eh > 4: 
+    choose_card()
+
 def change_player():
   for widget in root.winfo_children():
        widget.destroy()
@@ -276,7 +333,7 @@ def change_player():
   end_turn()
 
 new_deck()
-#draw()
 pass_cards()
+
 
 root.mainloop()
